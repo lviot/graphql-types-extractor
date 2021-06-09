@@ -8,10 +8,24 @@ export type KindEnum =
   | 'LIST'
   | 'NON_NULL'
 
+export type ScalarType =
+  'Int'
+  | 'Float'
+  | 'Long'
+  | 'String'
+  | 'Boolean'
+  | 'ID'
+
 export interface TypeRef {
-  kind: KindEnum,
   name: string,
+  kind: KindEnum,
   ofType: TypeRef,
+}
+
+export interface InputValue {
+  name: string,
+  type: TypeRef,
+  defaultValue: string,
 }
 
 export interface Field {
@@ -20,11 +34,8 @@ export interface Field {
   type: TypeRef
 }
 
-export interface InputValue {
+export interface EnumValue {
   name: string,
-  description: string,
-  type: TypeRef,
-  defaultValue: string,
 }
 
 export interface FullType {
@@ -33,7 +44,7 @@ export interface FullType {
   fields: Field[],
   inputFields: InputValue[],
   interfaces: TypeRef[],
-  enumValues: string[],
+  enumValues: EnumValue[],
   possibleTypes: TypeRef[],
 }
 
