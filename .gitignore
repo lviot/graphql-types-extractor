@@ -1,0 +1,6 @@
+.idea
+bin/
+
+graphql-types-extractor/
+node_modules/
+
