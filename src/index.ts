@@ -11,6 +11,10 @@ import { SchemaDefinition } from './introspectionTypes'
   const parser = new Parser()
   const [, , url] = process.argv
 
-  const response = await request<SchemaDefinition>(url, query)
-  parser.parse(response)
+  try {
+    const response = await request<SchemaDefinition>(url, query)
+    parser.parse(response)
+  } catch (e) {
+    console.warn('Unable to fetch/parse schema')
+  }
 })()
