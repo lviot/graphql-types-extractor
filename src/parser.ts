@@ -37,14 +37,24 @@ class Parser {
 
   _cleanup = () => this.outputFileStream.close()
 
-  processFields = (fieldIterator: IterableIterator<Field>, types: string[] = []): string[] => {
+  isNestedType = (typeKind: KindEnum) => {
+    return typeKind === 'NON_NULL' || typeKind === 'LIST'
+  }
+
+  processFields = (fieldIterator: IterableIterator<Field>, types: string[] = [], isNextList?: boolean): string[] => {
     const { name: fieldName, type } = fieldIterator.next().value ?? {}
 
     if (type === undefined) return types
 
+    const isNestedType = this.isNestedType(type.kind)
+    const convertedType = graphqlScalarToTypescript(!isNestedType ? type.name : type.ofType.name)
+
     return this.processFields(
       fieldIterator,
-      [...types, `${fieldName}: ${graphqlScalarToTypescript(type.name)}`]
+      [
+        ...types,
+        `${fieldName}: ${convertedType}${type.kind === 'LIST' ? '[]' : ''}`,
+      ]
     )
   }
 
@@ -52,12 +62,6 @@ class Parser {
     switch (type.kind) {
       case "ENUM":
         return enumWrapper(type, this.config.enumAsTypes)
-      case "INPUT_OBJECT":
-        break
-      case "LIST":
-        break
-      case "NON_NULL":
-        break
       case "INTERFACE":
       case "OBJECT":
         return interfaceWrapper(type.name, this.processFields(type.fields[Symbol.iterator]()).join(',\n  '))
